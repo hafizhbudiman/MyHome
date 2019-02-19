@@ -41,6 +41,13 @@ class LampViewSet(viewsets.ModelViewSet):
     queryset = Lamp.objects.all()
     serializer_class = LampSerializer
 
+    @action(methods=['post'], detail=True)
+    def turn_on_off(self, request, pk):
+        lamp = get_object_or_404(Lamp, pk=pk)
+        lamp.on = not(lamp.on)
+        lamp.save()
+
+        return Response(LampSerializer(lamp).data)
 
 class TokenViewSet(viewsets.ModelViewSet):
     queryset = Token.objects.all()
