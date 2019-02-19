@@ -1,4 +1,10 @@
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from core.decorators import validate_uuid
 from core.models import Door, OpenDoorLog, Electricity, Lamp, Token
 from core.serializers import (
     DoorSerializer,
@@ -7,12 +13,19 @@ from core.serializers import (
     LampSerializer,
     TokenSerializer,
 )
-from django.http import HttpResponse
+
 
 class DoorViewSet(viewsets.ModelViewSet):
     queryset = Door.objects.all()
     serializer_class = DoorSerializer
 
+    @action(methods=['post'], detail=True)
+    def lock_unlock(self, request, pk):
+        door = get_object_or_404(Door, pk=pk)
+        door.locked = not(door.locked)
+        door.save()
+
+        return Response(DoorSerializer(door).data)
 
 class OpenDoorLogViewSet(viewsets.ModelViewSet):
     queryset = OpenDoorLog.objects.all()

@@ -13,7 +13,7 @@ class DoorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Door
-        fields = ('id', 'house_id', 'logs')
+        fields = ('id', 'house_id', 'locked', 'logs')
 
 
 class ElectricitySerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class ElectricitySerializer(serializers.ModelSerializer):
 class LampSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lamp
-        fields = ('id', 'house_id')
+        fields = ('id', 'house_id', 'on')
 
 
 class TokenSerializer(serializers.ModelSerializer):
