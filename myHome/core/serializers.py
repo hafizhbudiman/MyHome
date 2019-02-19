@@ -9,11 +9,11 @@ class OpenDoorLogSerializer(serializers.ModelSerializer):
 
 
 class DoorSerializer(serializers.ModelSerializer):
-    logs = OpenDoorLogSerializer(source='door', many=True)
+    # logs = OpenDoorLogSerializer(source='door', many=True)
 
     class Meta:
         model = Door
-        fields = ('id', 'house_id', 'locked', 'logs')
+        fields = ('id', 'house_id', 'locked')
 
 
 class ElectricitySerializer(serializers.ModelSerializer):

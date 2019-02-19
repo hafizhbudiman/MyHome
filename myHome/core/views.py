@@ -1,5 +1,5 @@
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.db import transaction
+from django.http import HttpResponse, Http404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -34,7 +34,7 @@ class OpenDoorLogViewSet(viewsets.ModelViewSet):
 
 class ElectricityViewSet(viewsets.ModelViewSet):
     queryset = Electricity.objects.all()
-    serializer_class = Electricity
+    serializer_class = ElectricitySerializer
 
 
 class LampViewSet(viewsets.ModelViewSet):
@@ -52,3 +52,19 @@ class LampViewSet(viewsets.ModelViewSet):
 class TokenViewSet(viewsets.ModelViewSet):
     queryset = Token.objects.all()
     serializer_class = TokenSerializer
+
+    @transaction.atomic
+    @action(methods=['post'], detail=False)
+    def use(self, request):
+        account = Electricity.objects.filter(account_number=request.data['account_number']).first()
+        token = Token.objects.filter(code=request.data['code']).first()
+        
+        if account is None or token is None:
+            return Response('Electricity Account Or Token Not Found')
+        else:
+            account.balance += token.balance
+            token.used = True
+            account.save()
+            token.save()
+
+        return Response('YES')
