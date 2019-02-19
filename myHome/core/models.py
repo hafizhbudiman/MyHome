@@ -9,12 +9,14 @@ class Lamp(models.Model):
     def __str__(self):
         return f'{self.id}'
 
+
 class Door(models.Model):
     house_id = models.IntegerField()
     locked = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.id}'
+
 
 class Token(models.Model):
     code = models.CharField(max_length=200, unique=True)
@@ -24,12 +26,14 @@ class Token(models.Model):
     def __str__(self):
         return f'{self.id}'
 
+
 class Electricity(models.Model):
     balance = models.IntegerField(default=0)
     account_number = models.CharField(max_length=12)
 
     def __str__(self):
         return f'{self.id}'
+
 
 class OpenDoorLog(models.Model):
     door = models.ForeignKey(

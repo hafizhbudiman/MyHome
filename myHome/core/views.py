@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -27,10 +28,21 @@ class DoorViewSet(viewsets.ModelViewSet):
 
         return Response(DoorSerializer(door).data)
 
+
 class OpenDoorLogViewSet(viewsets.ModelViewSet):
     queryset = OpenDoorLog.objects.all()
     serializer_class = OpenDoorLogSerializer
 
+    @action(methods=['get'], detail=False)
+    def get_last_unauthorized(self, request):
+        log = OpenDoorLog.objects.filter(authorized=False).first()
+        
+        if log is None:
+            return Response("Not Found")
+        else:
+            log.authorized = True
+            log.save()
+            return Response(OpenDoorLogSerializer(log).data)
 
 class ElectricityViewSet(viewsets.ModelViewSet):
     queryset = Electricity.objects.all()
@@ -48,6 +60,7 @@ class LampViewSet(viewsets.ModelViewSet):
         lamp.save()
 
         return Response(LampSerializer(lamp).data)
+
 
 class TokenViewSet(viewsets.ModelViewSet):
     queryset = Token.objects.all()
