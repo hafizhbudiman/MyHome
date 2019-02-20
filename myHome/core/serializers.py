@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token, User
 
 
 class DoorLogSerializer(serializers.ModelSerializer):
@@ -14,22 +14,29 @@ class DoorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Door
-        fields = ('id', 'house_id', 'locked')
+        fields = ('id', 'owner', 'house_id', 'locked')
 
 
 class ElectricityAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = ElectricityAccount
-        fields = ('id', 'balance', 'account_number')
+        fields = ('id', 'owner', 'balance', 'account_number')
 
 
 class LampSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lamp
-        fields = ('id', 'house_id', 'on')
+        fields = ('id', 'owner', 'house_id', 'on')
 
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
         fields = ('id', 'code', 'balance', 'used')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'email')

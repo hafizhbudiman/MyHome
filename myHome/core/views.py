@@ -5,13 +5,14 @@ from rest_framework import generics, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token, User
 from core.serializers import (
-    DoorSerializer,
     DoorLogSerializer,
+    DoorSerializer,
     ElectricityAccountSerializer,
     LampSerializer,
     TokenSerializer,
+    UserSerializer,
 )
 
 
@@ -76,3 +77,13 @@ class TokenViewSet(viewsets.ModelViewSet):
             token.save()
 
         return Response('YES')
+
+class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = User.objects.create(email=request.data['email'], password=request.data['password'])
+        
+        return Response(UserSerializer(user).data)

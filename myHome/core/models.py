@@ -2,10 +2,19 @@ from django.db import models
 from django.utils.timezone import now
 
 
+class User(models.Model):
+    email = models.CharField(max_length=50, unique=True)
+    password = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f'{self.id}'
+
+
 class Lamp(models.Model):
     house_id = models.IntegerField()
     on = models.BooleanField(default=False)
-    
+    owner = models.ForeignKey('User', related_name='lamps', on_delete=models.CASCADE)
+
     def __str__(self):
         return f'{self.id}'
 
@@ -13,6 +22,7 @@ class Lamp(models.Model):
 class Door(models.Model):
     house_id = models.IntegerField()
     locked = models.BooleanField(default=False)
+    owner = models.ForeignKey('User', related_name='doors', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.id}'
@@ -30,6 +40,7 @@ class Token(models.Model):
 class ElectricityAccount(models.Model):
     balance = models.IntegerField(default=0)
     account_number = models.CharField(max_length=12)
+    owner = models.ForeignKey('User', related_name='e_account', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.id}'
