@@ -1,20 +1,30 @@
 from django.db import transaction
-from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+
+from rest_framework import generics, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.decorators import validate_uuid
-from core.models import Door, OpenDoorLog, Electricity, Lamp, Token
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
 from core.serializers import (
     DoorSerializer,
-    OpenDoorLogSerializer,
-    ElectricitySerializer,
+    DoorLogSerializer,
+    ElectricityAccountSerializer,
     LampSerializer,
     TokenSerializer,
 )
 
+
+class DoorLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = DoorLog.objects.all()
+    serializer_class = DoorLogSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        door = get_object_or_404(Door, pk=request.data['id'])
+        log = DoorLog.objects.create(door=door)
+        
+        return Response(DoorLogSerializer(log).data)
 
 class DoorViewSet(viewsets.ModelViewSet):
     queryset = Door.objects.all()
@@ -29,24 +39,9 @@ class DoorViewSet(viewsets.ModelViewSet):
         return Response(DoorSerializer(door).data)
 
 
-class OpenDoorLogViewSet(viewsets.ModelViewSet):
-    queryset = OpenDoorLog.objects.all()
-    serializer_class = OpenDoorLogSerializer
-
-    @action(methods=['get'], detail=False)
-    def get_last_unauthorized(self, request):
-        log = OpenDoorLog.objects.filter(authorized=False).first()
-        
-        if log is None:
-            return Response("Not Found")
-        else:
-            log.authorized = True
-            log.save()
-            return Response(OpenDoorLogSerializer(log).data)
-
-class ElectricityViewSet(viewsets.ModelViewSet):
-    queryset = Electricity.objects.all()
-    serializer_class = ElectricitySerializer
+class ElectricityAccountViewSet(viewsets.ModelViewSet):
+    queryset = ElectricityAccount.objects.all()
+    serializer_class = ElectricityAccountSerializer
 
 
 class LampViewSet(viewsets.ModelViewSet):
@@ -68,7 +63,7 @@ class TokenViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     @action(methods=['post'], detail=False)
-    def use(self, request):
+    def use_token(self, request):
         account = Electricity.objects.filter(account_number=request.data['account_number']).first()
         token = Token.objects.filter(code=request.data['code']).first()
         
