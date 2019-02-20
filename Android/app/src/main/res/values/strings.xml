@@ -10,4 +10,6 @@
     <string name="home_default">Home</string>
     <string name="notifications_default">Notifications</string>
     <string name="title_account">Account</string>
+    <string name="name">Name</string>
+    <string name="log_out">Log Out</string>
 </resources>
