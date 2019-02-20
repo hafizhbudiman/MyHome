@@ -10,4 +10,10 @@
     <string name="home_default">Home</string>
     <string name="notifications_default">Notifications</string>
     <string name="title_account">Account</string>
+    <string name="terrace_lamp">Terrace Lamp</string>
+    <string name="livingroom_lamp">Living Room Lamp</string>
+    <string name="bedroom_lamp">Bedroom Lamp</string>
+    <string name="front_door">Front Door</string>
+    <string name="door_unlock">Shake to Unlock</string>
+    <string name="door_lock">Shake to Lock</string>
 </resources>

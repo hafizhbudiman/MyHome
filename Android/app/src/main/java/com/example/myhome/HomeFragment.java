@@ -1,12 +1,18 @@
 package com.example.myhome;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
 
 
 /**
@@ -28,6 +34,13 @@ public class HomeFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private Context context;
+    private View rootView;
+
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private ShakeDetector mShakeDetector;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -58,13 +71,114 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        context = getActivity().getApplicationContext();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        Switch terraceSwitch = rootView.findViewById(R.id.switch1);
+        Switch livingRoomSwitch = rootView.findViewById(R.id.switch2);
+        Switch bedroomSwitch = rootView.findViewById(R.id.switch3);
+        final Button frontDoorButton = rootView.findViewById(R.id.button_door1);
+
+        terraceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String message;
+                if (isChecked) {
+                    message = "Terrace lamp turned on";
+                } else {
+                    message = "Terrace lamp turned off";
+                }
+                Toast.makeText(getActivity(), message,
+                        Toast.LENGTH_LONG).show();
+            }
+
+        });
+
+        livingRoomSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String message;
+                if (isChecked) {
+                    message = "Living room lamp turned on";
+                } else {
+                    message = "Living room lamp turned off";
+                }
+                Toast.makeText(getActivity(), message,
+                        Toast.LENGTH_LONG).show();
+            }
+
+        });
+
+        bedroomSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String message;
+                if (isChecked) {
+                    message = "Bedroom lamp turned on";
+                } else {
+                    message = "Bedroom lamp turned off";
+                }
+                Toast.makeText(getActivity(), message,
+                        Toast.LENGTH_LONG).show();
+            }
+
+        });
+
+        // ShakeDetector initialization
+        mSensorManager = (SensorManager) context.getSystemService(context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager
+                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+
+            @Override
+            public void onShake(int count) {
+                /*
+                 * The following method, "handleShakeEvent(count):" is a stub //
+                 * method you would use to setup whatever you want done once the
+                 * device has been shook.
+                 */
+
+                String buttonString = frontDoorButton.getText().toString();
+                String doorToast = "Error occured";
+
+                if((buttonString.equals(getString(R.string.door_lock)))){
+                    frontDoorButton.setText(getString(R.string.door_unlock));
+                    doorToast = "Front door is unlocked";
+                }else if((buttonString.equals(getString(R.string.door_unlock)))){
+                    frontDoorButton.setText(getString(R.string.door_lock));
+                    doorToast = "Front door is locked";
+                }
+
+                Toast.makeText(getActivity(), doorToast, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Add the following line to register the Session Manager Listener onResume
+        mSensorManager.registerListener(mShakeDetector, mAccelerometer,	SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onPause() {
+        // Add the following line to unregister the Sensor Manager onPause
+        mSensorManager.unregisterListener(mShakeDetector);
+        super.onPause();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
