@@ -1,34 +1,53 @@
 from rest_framework import serializers
-from core.models import Door, OpenDoorLog, Electricity, Lamp, Token
+from django.contrib.auth.models import User
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
 
 
-class OpenDoorLogSerializer(serializers.ModelSerializer):
+class OwnerSerializer(serializers.ModelSerializer):
+    
     class Meta:
-        model = OpenDoorLog
-        fields = ('id', 'door', 'created_at', 'authorized')
+        model = User
+        fields = ('username',)
+
+
+class DoorLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoorLog
+        fields = ('id', 'door', 'created_at')
 
 
 class DoorSerializer(serializers.ModelSerializer):
-    logs = OpenDoorLogSerializer(source='door', many=True)
+    owner = OwnerSerializer()
 
     class Meta:
         model = Door
-        fields = ('id', 'house_id', 'locked', 'logs')
+        fields = ('id', 'owner', 'house_id', 'locked')
 
 
-class ElectricitySerializer(serializers.ModelSerializer):
+class ElectricityAccountSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer()
+
     class Meta:
-        model = Electricity
-        fields = ('id', 'balance', 'account_number')
+        model = ElectricityAccount
+        fields = ('id', 'owner', 'balance', 'account_number')
 
 
 class LampSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer()
+
     class Meta:
         model = Lamp
-        fields = ('id', 'house_id', 'on')
+        fields = ('id', 'owner', 'house_id', 'on')
 
 
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
         fields = ('id', 'code', 'balance', 'used')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')

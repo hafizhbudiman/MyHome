@@ -10,6 +10,7 @@
     <string name="home_default">Home</string>
     <string name="notifications_default">Notifications</string>
     <string name="title_account">Account</string>
+<<<<<<< HEAD
     <string name="terrace_lamp">Terrace Lamp</string>
     <string name="livingroom_lamp">Living Room Lamp</string>
     <string name="bedroom_lamp">Bedroom Lamp</string>
@@ -20,4 +21,19 @@
     <string name="share">Share</string>
     <string name="reward_title">You have received your token reward</string>
     <string name="no_notification_available">No Notification Available</string>
+=======
+    <string name="name">Name</string>
+    <string name="log_out">Log Out</string>
+    <string name="no_account_yet_create_one">No account yet? Create one</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="already_a_member_login">Already a member? Login</string>
+    <string name="create_account">Create Account</string>
+    <string name="re_enter_password">Re-enter Password</string>
+    <string name="password">Password</string>
+    <string name="mobile_number">Mobile Number</string>
+    <string name="email">Email</string>
+    <string name="address">Address</string>
+>>>>>>> 5045ff39c493f2077001bd50e5dd7bc62cacad27
 </resources>
