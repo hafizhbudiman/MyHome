@@ -16,4 +16,8 @@
     <string name="front_door">Front Door</string>
     <string name="door_unlock">Shake to Unlock</string>
     <string name="door_lock">Shake to Lock</string>
+    <string name="door_unauthorized_title">Unauthorized activity detected on front door</string>
+    <string name="share">Share</string>
+    <string name="reward_title">You have received your token reward</string>
+    <string name="no_notification_available">No Notification Available</string>
 </resources>
