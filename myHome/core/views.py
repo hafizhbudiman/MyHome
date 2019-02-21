@@ -1,11 +1,13 @@
+from django.contrib.auth.models import User
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, mixins, viewsets
+from rest_framework import generics, mixins, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token, User
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
 from core.serializers import (
     DoorLogSerializer,
     DoorSerializer,
@@ -16,20 +18,25 @@ from core.serializers import (
 )
 
 
-class DoorLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = DoorLog.objects.all()
     serializer_class = DoorLogSerializer
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        door = get_object_or_404(Door, pk=request.data['id'])
+        user = User.objects.filter(username=request.data['username']).first()
+        if user is None:
+            return Response('User With Username' + request.data['username'] + 'Not Found')
+        door = Door.objects.filter(house_id=request.data['id'], owner=user).first()
         log = DoorLog.objects.create(door=door)
         
         return Response(DoorLogSerializer(log).data)
 
-class DoorViewSet(viewsets.ModelViewSet):
+
+class DoorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Door.objects.all()
     serializer_class = DoorSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     @action(methods=['post'], detail=True)
     def lock_unlock(self, request, pk):
@@ -43,11 +50,13 @@ class DoorViewSet(viewsets.ModelViewSet):
 class ElectricityAccountViewSet(viewsets.ModelViewSet):
     queryset = ElectricityAccount.objects.all()
     serializer_class = ElectricityAccountSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class LampViewSet(viewsets.ModelViewSet):
+class LampViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Lamp.objects.all()
     serializer_class = LampSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     @action(methods=['post'], detail=True)
     def turn_on_off(self, request, pk):
@@ -65,7 +74,7 @@ class TokenViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     @action(methods=['post'], detail=False)
     def use_token(self, request):
-        account = Electricity.objects.filter(account_number=request.data['account_number']).first()
+        account = ElectricityAccount.objects.filter(account_number=request.data['account_number']).first()
         token = Token.objects.filter(code=request.data['code']).first()
         
         if account is None or token is None:
@@ -76,14 +85,19 @@ class TokenViewSet(viewsets.ModelViewSet):
             account.save()
             token.save()
 
-        return Response('YES')
+        return Response(ElectricityAccountSerializer(account).data)
 
-class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        user = User.objects.create(email=request.data['email'], password=request.data['password'])
-        
+        user = User.objects.create_user(username=request.data['username'], email=request.data['email'], password=request.data['password'])
+        door = Door.objects.create(owner=user, house_id=1)
+
+        for i in range(3):
+            lamp = Lamp.objects.create(owner=user, house_id=i+1)
+
         return Response(UserSerializer(user).data)

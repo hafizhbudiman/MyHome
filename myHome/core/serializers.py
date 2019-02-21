@@ -1,6 +1,6 @@
 from rest_framework import serializers
-
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token, User
+from django.contrib.auth.models import User
+from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
 
 
 class DoorLogSerializer(serializers.ModelSerializer):
@@ -39,4 +39,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email')
+        fields = ('id', 'username', 'email')
