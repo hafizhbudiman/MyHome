@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
 
 
+class OwnerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ('username',)
+
+
 class DoorLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoorLog
@@ -10,7 +17,7 @@ class DoorLogSerializer(serializers.ModelSerializer):
 
 
 class DoorSerializer(serializers.ModelSerializer):
-    # logs = OpenDoorLogSerializer(source='door', many=True)
+    owner = OwnerSerializer()
 
     class Meta:
         model = Door
@@ -18,12 +25,16 @@ class DoorSerializer(serializers.ModelSerializer):
 
 
 class ElectricityAccountSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer()
+
     class Meta:
         model = ElectricityAccount
         fields = ('id', 'owner', 'balance', 'account_number')
 
 
 class LampSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer()
+
     class Meta:
         model = Lamp
         fields = ('id', 'owner', 'house_id', 'on')

@@ -26,7 +26,7 @@ class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     def create(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data['username']).first()
         if user is None:
-            return Response('User With Username' + request.data['username'] + 'Not Found')
+            return Response('User With Username ' + request.data['username'] + ' Not Found')
         door = Door.objects.filter(house_id=request.data['id'], owner=user).first()
         log = DoorLog.objects.create(door=door)
         
