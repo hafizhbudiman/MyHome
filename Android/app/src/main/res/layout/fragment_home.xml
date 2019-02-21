@@ -72,7 +72,7 @@
                     android:layout_weight="1"
                     android:text="@string/front_door"
                     android:textSize="20sp"
-                    android:textColor="@color/color_black"/>
+                    android:textColor="@color/colorBlack"/>
 
                 <Button
                     android:id="@+id/button_door1"
