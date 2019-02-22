@@ -1,12 +1,16 @@
 package com.kecepret.myhome;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import com.kecepret.myhome.model.UserSession;
 
 
 /**
@@ -28,6 +32,10 @@ public class AccountFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private View rootView;
+
+    UserSession session;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -64,14 +72,23 @@ public class AccountFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_account, container, false);
-    }
+        rootView = inflater.inflate(R.layout.fragment_account, container, false);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        // User Session Manager
+        session = new UserSession(rootView.getContext());
+
+        Button logOutButton = (Button) rootView.findViewById(R.id.logout);
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                session.logoutUser();
+                Intent i = new  Intent(v.getContext(), LoginActivity.class);
+                startActivity(i);
+                getActivity().finish();
+            }
+        });
+
+        return rootView;
     }
 
     @Override
