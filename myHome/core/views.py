@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -108,9 +109,9 @@ class LoginViewSet(viewsets.GenericViewSet):
     serializer_class = LoginSerializer
 
     def create(self, request, *arg, **kwargs):
-        user = User.objects.filter(username=request.data['username'], password=request.data['password']).first()
+        user = authenticate(username=request.data['username'], password=request.data['password'])
         
-        if user is None:
+        if not user:
             return Response({'status': False})
         else:
             return Response({'status': True})
