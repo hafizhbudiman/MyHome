@@ -1,14 +1,9 @@
 <resources>
     <string name="app_name">MyHome</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="account_default">Account</string>
-    <string name="home_default">Home</string>
-    <string name="notifications_default">Notifications</string>
     <string name="title_account">Account</string>
     <string name="terrace_lamp">Terrace Lamp</string>
     <string name="livingroom_lamp">Living Room Lamp</string>
@@ -16,11 +11,9 @@
     <string name="front_door">Front Door</string>
     <string name="door_unlock">Shake to Unlock</string>
     <string name="door_lock">Shake to Lock</string>
-    <string name="door_unauthorized_title">Unauthorized activity detected on front door</string>
     <string name="share">Share</string>
     <string name="reward_title">You have received your token reward</string>
     <string name="no_notification_available">No Notification Available</string>
-    <string name="name">Name</string>
     <string name="log_out">Log Out</string>
     <string name="no_account_yet_create_one">Don\'t have account? <u>Sign up</u></string>
     <string name="login">Login</string>

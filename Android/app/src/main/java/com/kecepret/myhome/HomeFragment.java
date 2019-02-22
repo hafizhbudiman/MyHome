@@ -14,6 +14,17 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.kecepret.myhome.model.Result;
+import com.kecepret.myhome.model.TokenResponse;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +52,7 @@ public class HomeFragment extends Fragment {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
+    APIInterface apiInterface;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -90,14 +102,51 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String message;
                 if (isChecked) {
-                    message = "Terrace lamp turned on";
+                    apiInterface = APIClient.getClient().create(APIInterface.class);
+                    Call<TokenResponse> call = apiInterface.doGetTokens();
+                    call.enqueue(new Callback<TokenResponse>() {
+                        @Override
+                        public void onResponse(Call<TokenResponse> call, Response<TokenResponse> response) {
+
+                            String displayResponse = "";
+
+                            TokenResponse resource = response.body();
+                            Integer count = resource.count;
+                            List<Result> resultList = resource.results;
+
+                            displayResponse +=  count + " Total\n";
+
+//                            for (Result result : resultList) {
+//                                displayResponse += result.id + " " + result.code + " " + result.balance + " " + result.used + "\n";
+//                            }
+
+                            String message;
+
+                            message = "ASU" + displayResponse;
+                            Toast.makeText(getActivity(), message,
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<TokenResponse> call, Throwable t) {
+                            String message;
+                            message = "ASU";
+                            Toast.makeText(getActivity(), message,
+                                    Toast.LENGTH_LONG).show();
+                            call.cancel();
+                        }
+                    });
+
+//                    message = "Terrace lamp turned on";
                 } else {
+                    String message;
                     message = "Terrace lamp turned off";
+                    Toast.makeText(getActivity(), message,
+                            Toast.LENGTH_LONG).show();
                 }
-                Toast.makeText(getActivity(), message,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(getActivity(), message,
+//                        Toast.LENGTH_LONG).show();
             }
 
         });
