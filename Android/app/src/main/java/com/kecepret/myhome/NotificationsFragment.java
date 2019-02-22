@@ -1,4 +1,4 @@
-package com.example.myhome;
+package com.kecepret.myhome;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,11 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.myhome.adapter.NotificationAdapter;
-import com.example.myhome.model.Notification;
+import com.kecepret.myhome.adapter.NotificationAdapter;
+import com.kecepret.myhome.model.Notification;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 

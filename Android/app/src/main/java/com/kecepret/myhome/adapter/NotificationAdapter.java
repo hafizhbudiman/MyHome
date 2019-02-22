@@ -1,4 +1,4 @@
-package com.example.myhome.adapter;
+package com.kecepret.myhome.adapter;
 
 
 import android.content.Context;
@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-import com.example.myhome.R;
-import com.example.myhome.model.Notification;
+import com.kecepret.myhome.R;
+import com.kecepret.myhome.model.Notification;
 
 import java.util.ArrayList;
 import java.util.List;

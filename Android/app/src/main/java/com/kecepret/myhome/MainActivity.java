@@ -1,6 +1,5 @@
-package com.example.myhome;
+package com.kecepret.myhome;
 
-import android.accounts.AccountManagerCallback;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;

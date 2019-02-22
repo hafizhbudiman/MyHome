@@ -1,4 +1,4 @@
-package com.example.myhome;
+package com.kecepret.myhome;
 
 import android.content.Context;
 import android.net.Uri;

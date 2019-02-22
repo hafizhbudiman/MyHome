@@ -1,4 +1,4 @@
-package com.example.myhome.model;
+package com.kecepret.myhome.model;
 
 public class Notification {
 

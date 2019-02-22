@@ -1,4 +1,4 @@
-package com.example.myhome;
+package com.kecepret.myhome;
 
 import org.junit.Test;
 
