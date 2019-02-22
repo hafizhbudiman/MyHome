@@ -13,6 +13,7 @@ from core.serializers import (
     DoorSerializer,
     ElectricityAccountSerializer,
     LampSerializer,
+    LoginSerializer,
     TokenSerializer,
     UserSerializer,
 )
@@ -101,3 +102,15 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
             lamp = Lamp.objects.create(owner=user, house_id=i+1)
 
         return Response(UserSerializer(user).data)
+
+
+class LoginViewSet(viewsets.GenericViewSet):
+    serializer_class = LoginSerializer
+
+    def create(self, request, *arg, **kwargs):
+        user = User.objects.filter(username=request.data['username'], password=request.data['password']).first()
+        
+        if user is None:
+            return Response({'status': False})
+        else:
+            return Response({'status': True})
