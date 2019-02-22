@@ -40,6 +40,12 @@ class LampSerializer(serializers.ModelSerializer):
         fields = ('id', 'owner', 'house_id', 'on')
 
 
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+        
+
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -13,6 +14,7 @@ from core.serializers import (
     DoorSerializer,
     ElectricityAccountSerializer,
     LampSerializer,
+    LoginSerializer,
     TokenSerializer,
     UserSerializer,
 )
@@ -27,6 +29,7 @@ class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         user = User.objects.filter(username=request.data['username']).first()
         if user is None:
             return Response('User With Username ' + request.data['username'] + ' Not Found')
+            
         door = Door.objects.filter(house_id=request.data['id'], owner=user).first()
         log = DoorLog.objects.create(door=door)
         
@@ -38,9 +41,11 @@ class DoorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     serializer_class = DoorSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @action(methods=['post'], detail=True)
-    def lock_unlock(self, request, pk):
-        door = get_object_or_404(Door, pk=pk)
+    @action(methods=['post'], detail=False)
+    def lock_unlock(self, request):
+        username = self.request.user.username
+        
+        door = Door.objects.filter(owner__username=username, house_id=request.data['id']).first()
         door.locked = not(door.locked)
         door.save()
 
@@ -58,9 +63,11 @@ class LampViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     serializer_class = LampSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @action(methods=['post'], detail=True)
-    def turn_on_off(self, request, pk):
-        lamp = get_object_or_404(Lamp, pk=pk)
+    @action(methods=['post'], detail=False)
+    def turn_on_off(self, request):
+        username = self.request.user.username
+        
+        lamp = Lamp.objects.filter(owner__username=username, house_id=request.data['id']).first()
         lamp.on = not(lamp.on)
         lamp.save()
 
@@ -101,3 +108,15 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
             lamp = Lamp.objects.create(owner=user, house_id=i+1)
 
         return Response(UserSerializer(user).data)
+
+
+class LoginViewSet(viewsets.GenericViewSet):
+    serializer_class = LoginSerializer
+
+    def create(self, request, *arg, **kwargs):
+        user = authenticate(username=request.data['username'], password=request.data['password'])
+        
+        if not user:
+            return Response({'status': False})
+        else:
+            return Response({'status': True})
