@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
+from core.models import (
+    Door,
+    DoorLog,
+    ElectricityAccount,
+    Lamp,
+    Notification,
+    Token,
+    UserToken,
+)
 
 
 class OwnerSerializer(serializers.ModelSerializer):
@@ -53,7 +61,18 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ('id', 'tipe', 'nominal', 'owner')
+
+
+class UserTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserToken
+        fields = '__all__'

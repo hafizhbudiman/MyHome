@@ -47,3 +47,17 @@ class DoorLog(models.Model):
     
     def __str__(self):
         return f'{self.id}'
+
+
+class UserToken(models.Model):
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="tokens")
+    token = models.CharField(max_length=128)
+
+    def __str__(self):
+        return f'{self.token}'
+
+
+class Notification(models.Model):
+    owner = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="notifications")
+    tipe = models.IntegerField(default=0)   # 1 = door, 2 = reward
+    nominal = models.IntegerField(default=0)

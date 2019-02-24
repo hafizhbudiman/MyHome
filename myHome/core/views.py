@@ -1,22 +1,32 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, mixins, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.models import Door, DoorLog, ElectricityAccount, Lamp, Token
+from core.models import (
+    Door,
+    DoorLog,
+    ElectricityAccount,
+    Lamp,
+    Notification,
+    Token,
+    UserToken,
+)
 from core.serializers import (
     DoorLogSerializer,
     DoorSerializer,
     ElectricityAccountSerializer,
     LampSerializer,
     LoginSerializer,
+    NotificationSerializer,
     TokenSerializer,
     UserSerializer,
+    UserTokenSerializer,
 )
 
 
@@ -36,7 +46,7 @@ class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         return Response(DoorLogSerializer(log).data)
 
 
-class DoorViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class DoorViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Door.objects.all()
     serializer_class = DoorSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -58,7 +68,7 @@ class ElectricityAccountViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class LampViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class LampViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Lamp.objects.all()
     serializer_class = LampSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -107,7 +117,7 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
         for i in range(3):
             lamp = Lamp.objects.create(owner=user, house_id=i+1)
 
-        return Response(UserSerializer(user).data)
+        return Response({'status': True})
 
 
 class LoginViewSet(viewsets.GenericViewSet):
@@ -120,3 +130,42 @@ class LoginViewSet(viewsets.GenericViewSet):
             return Response({'status': False})
         else:
             return Response({'status': True})
+
+
+class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = NotificationSerializer
+
+    @transaction.atomic
+    def create(self, request, *arg, **kwargs):
+        user = User.objects.filter(username=request.data['username']).first()
+        if user is None:
+            return Response({'status': False})
+
+        notification = Notification.objects.create(owner=user, tipe=request.data['tipe'])
+        if notification.tipe == 2:
+            notification.nominal = request.data['nominal']
+        notification.save()
+
+        return Response({'status': True})
+
+    def get_queryset(self):
+        queryset = Notification.objects.all()
+        username = self.request.query_params.get('username', None)
+        if username:
+            queryset = queryset.filter(owner__username=username)
+        return queryset
+
+
+class UserTokenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = UserToken.objects.all()
+    serializer_class = UserTokenSerializer
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = User.objects.filter(username=request.data['username']).first()
+        if user is None:
+            return Response({'status': False})
+            
+        userToken = UserToken.objects.create(user=user, token=request.data['token'])
+
+        return Response(UserTokenSerializer(userToken).data)
