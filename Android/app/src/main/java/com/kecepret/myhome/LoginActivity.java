@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // UI references.
     private AutoCompleteTextView mUserName;
     private EditText mPasswordView;
-    private GoogleSignInClient mGoogleSignInClient;
+    public GoogleSignInClient mGoogleSignInClient;
     private AppCompatButton mEmailSignInButton;
     private Button registerButton;
     private SignInButton signInButton;
@@ -386,10 +386,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                     // Starting MainActivity
                     Intent i = new  Intent(getApplicationContext(),MainActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                    // Add new Flag to start new Activity
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
                     finish();
                 } else {
@@ -419,6 +415,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 if (exist) {
                     session.createUserLoginSession(email, email);
+
+                    Toast.makeText(getApplicationContext(), "Logged in as " + fullname,
+                            Toast.LENGTH_LONG).show();
 
                     // Starting MainActivity
                     Intent i = new  Intent(getApplicationContext(),MainActivity.class);

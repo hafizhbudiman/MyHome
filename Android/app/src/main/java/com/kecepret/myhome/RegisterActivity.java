@@ -48,6 +48,9 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // User Session Manager
+        session = new UserSession(getApplicationContext());
+
         mFullName = (AutoCompleteTextView) findViewById(R.id.fullname);
         mUsername = (AutoCompleteTextView) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -167,21 +170,15 @@ public class RegisterActivity extends AppCompatActivity {
             //mAuthTask.execute((Void) null);
             mSignUpButton.setEnabled(false);
 
-            Toast.makeText(getApplicationContext(), "kontol",
-                    Toast.LENGTH_LONG).show();
-
             Register(fullname, username, password, email, phoneNumber, address);
         }
     }
 
-    public void Register(String fullname, final String username, final String password, String email, String phoneNumber, String address){
+    public void Register(final String fullname, final String username, final String password, String email, String phoneNumber, String address){
 
         apiInterface = APIClient.getClient().create(APIInterface.class);
         Register register = new Register(username, email, password, fullname, address, googleId, phoneNumber);
         Call<ResponseBE> call = apiInterface.register(register);
-
-        Toast.makeText(getApplicationContext(), "kontol2",
-                Toast.LENGTH_LONG).show();
 
         call.enqueue(new Callback<ResponseBE>() {
 
@@ -190,20 +187,14 @@ public class RegisterActivity extends AppCompatActivity {
                 ResponseBE resource = response.body();
                 Boolean success = resource.success;
 
-                Log.e("Login Status", "Register API call status " + success.toString());
-
-                Toast.makeText(getApplicationContext(), success.toString(),
-                        Toast.LENGTH_LONG).show();
-
                 if (success) {
                     session.createUserLoginSession(username, password);
 
+                    Toast.makeText(getApplicationContext(), "Logged in as " + fullname,
+                            Toast.LENGTH_LONG).show();
+
                     // Starting MainActivity
                     Intent i = new  Intent(getApplicationContext(), MainActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                    // Add new Flag to start new Activity
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
                     finish();
                 } else {
@@ -214,8 +205,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBE> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "kontol failure",
-                        Toast.LENGTH_LONG).show();
                 call.cancel();
 
             }

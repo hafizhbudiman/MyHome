@@ -4,12 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.kecepret.myhome.model.UserSession;
 
 
@@ -34,6 +42,8 @@ public class AccountFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private View rootView;
+
+    private GoogleSignInClient mGoogleSignInClient;
 
     UserSession session;
 
@@ -82,6 +92,8 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 session.logoutUser();
+                signOut();
+
                 Intent i = new  Intent(v.getContext(), LoginActivity.class);
                 startActivity(i);
                 getActivity().finish();
@@ -89,6 +101,28 @@ public class AccountFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                    }
+                });
+    }
+
+    @Override
+    public void onStart() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+
+        super.onStart();
     }
 
     @Override

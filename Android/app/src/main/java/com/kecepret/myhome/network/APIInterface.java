@@ -22,7 +22,7 @@ public interface APIInterface {
     @POST("/login/")
     Call<ResponseBE> login(@Body User user);
 
-    @POST("/login/google")
+    @POST("/login/google/")
     Call<ResponseBE> login_google(@Body GoogleId googleId);
 
     @POST("/users/")
