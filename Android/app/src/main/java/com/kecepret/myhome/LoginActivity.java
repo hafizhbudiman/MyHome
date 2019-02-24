@@ -32,12 +32,19 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.User;
 import com.kecepret.myhome.model.UserSession;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -73,6 +80,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // User Session Manager Class
     UserSession session;
+    APIInterface apiInterface;
 
     private SharedPreferences sharedPreferences;
 
@@ -350,6 +358,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }
 
+
+
             // TODO: register the new account here.
             return false;
         }
@@ -398,6 +408,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    public void Login(String username, String password){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        User user = new User(username, password);
+        Call<ResponseBE> call = apiInterface.login(user);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
     }
 }
 

@@ -1,13 +1,22 @@
 package com.kecepret.myhome.network;
 
-import com.kecepret.myhome.model.TokenResponse;
+import com.kecepret.myhome.model.Door;
+import com.kecepret.myhome.model.Lamp;
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.User;
 
 import retrofit2.Call;
-import retrofit2.http.GET;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
 public interface APIInterface {
 
-    @GET("/tokens")
-    Call<TokenResponse> doGetTokens();
+    @POST("/lamps/turn_on_off/")
+    Call<ResponseBE> turnOnOff(@Body Lamp lamp);
 
+    @POST("/doors/lock_unlock/")
+    Call<ResponseBE> turnOnOff(@Body Door door);
+
+    @POST("/login/")
+    Call<ResponseBE> login(@Body User user);
 }

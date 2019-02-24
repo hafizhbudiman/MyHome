@@ -14,11 +14,17 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.kecepret.myhome.model.Lamp;
+import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Result;
 import com.kecepret.myhome.model.TokenResponse;
+import com.kecepret.myhome.model.User;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
+import com.kecepret.myhome.network.ServiceGenerator;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -101,52 +107,18 @@ public class HomeFragment extends Fragment {
         terraceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+                String message = "";
                 if (isChecked) {
-                    apiInterface = APIClient.getClient().create(APIInterface.class);
-                    Call<TokenResponse> call = apiInterface.doGetTokens();
-                    call.enqueue(new Callback<TokenResponse>() {
-                        @Override
-                        public void onResponse(Call<TokenResponse> call, Response<TokenResponse> response) {
-
-                            String displayResponse = "";
-
-                            TokenResponse resource = response.body();
-                            Integer count = resource.count;
-                            List<Result> resultList = resource.results;
-
-                            displayResponse +=  count + " Total\n";
-
-//                            for (Result result : resultList) {
-//                                displayResponse += result.id + " " + result.code + " " + result.balance + " " + result.used + "\n";
-//                            }
-
-                            String message;
-
-                            message = "ASU" + displayResponse;
-                            Toast.makeText(getActivity(), message,
-                                    Toast.LENGTH_LONG).show();
-                        }
-
-                        @Override
-                        public void onFailure(Call<TokenResponse> call, Throwable t) {
-                            String message;
-                            message = "ASU";
-                            Toast.makeText(getActivity(), message,
-                                    Toast.LENGTH_LONG).show();
-                            call.cancel();
-                        }
-                    });
-
-//                    message = "Terrace lamp turned on";
+                    TurnOnOffLamp("rwk", 1);
+                    message = "Terrace lamp turned on";
                 } else {
-                    String message;
+                    TurnOnOffLamp("rwk", 1);
                     message = "Terrace lamp turned off";
-                    Toast.makeText(getActivity(), message,
-                            Toast.LENGTH_LONG).show();
+
                 }
-//                Toast.makeText(getActivity(), message,
-//                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), message,
+                        Toast.LENGTH_LONG).show();
             }
 
         });
@@ -157,8 +129,10 @@ public class HomeFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
                 if (isChecked) {
+                    TurnOnOffLamp("rwk", 2);
                     message = "Living room lamp turned on";
                 } else {
+                    TurnOnOffLamp("rwk", 2);
                     message = "Living room lamp turned off";
                 }
                 Toast.makeText(getActivity(), message,
@@ -173,8 +147,10 @@ public class HomeFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
                 if (isChecked) {
+                    TurnOnOffLamp("rwk", 3);
                     message = "Bedroom lamp turned on";
                 } else {
+                    TurnOnOffLamp("rwk", 3);
                     message = "Bedroom lamp turned off";
                 }
                 Toast.makeText(getActivity(), message,
@@ -268,4 +244,25 @@ public class HomeFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    public void TurnOnOffLamp(String username, int id){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Lamp lamp = new Lamp(username, id);
+        Call<ResponseBE> call = apiInterface.turnOnOff(lamp);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                ResponseBE resource = response.body();
+                Boolean success = resource.success;
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
+    }
+
 }
