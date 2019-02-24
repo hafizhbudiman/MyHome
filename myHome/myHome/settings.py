@@ -125,3 +125,8 @@ STATIC_URL = '/static/'
 django_heroku.settings(locals())
 
 API_KEY = 'AAAAub550eQ:APA91bF-XVZjDpQ3Op0Lk55Sat8HRBygdWM83jKoV3Pe3BqqdDuZNdIBrq-m8mM73F8lt6p4lMm9LJGuMEpzz28Q1PUkiEJ5-08YbYXgNze8Wstxw333Xc9GpBsS9FyKmcZEdAsGW7hE'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
