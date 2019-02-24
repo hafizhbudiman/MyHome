@@ -14,6 +14,23 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.kecepret.myhome.model.Lamp;
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.Result;
+import com.kecepret.myhome.model.TokenResponse;
+import com.kecepret.myhome.model.User;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
+import com.kecepret.myhome.network.ServiceGenerator;
+
+import java.io.IOException;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +58,7 @@ public class HomeFragment extends Fragment {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
+    APIInterface apiInterface;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -89,12 +107,14 @@ public class HomeFragment extends Fragment {
         terraceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String message;
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+                String message = "";
+                TurnOnOffLamp("rwk", 1);
                 if (isChecked) {
                     message = "Terrace lamp turned on";
                 } else {
                     message = "Terrace lamp turned off";
+
                 }
                 Toast.makeText(getActivity(), message,
                         Toast.LENGTH_LONG).show();
@@ -107,6 +127,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
+                TurnOnOffLamp("rwk", 2);
                 if (isChecked) {
                     message = "Living room lamp turned on";
                 } else {
@@ -123,6 +144,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
+                TurnOnOffLamp("rwk", 3);
                 if (isChecked) {
                     message = "Bedroom lamp turned on";
                 } else {
@@ -219,4 +241,25 @@ public class HomeFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    public void TurnOnOffLamp(String username, int id){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Lamp lamp = new Lamp(username, id);
+        Call<ResponseBE> call = apiInterface.turnOnOff(lamp);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                ResponseBE resource = response.body();
+                Boolean success = resource.success;
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
+    }
+
 }

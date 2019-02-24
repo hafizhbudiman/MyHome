@@ -1,9 +1,6 @@
 package com.kecepret.myhome;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -16,7 +13,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -42,10 +38,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.kecepret.myhome.model.GoogleId;
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.User;
+
 import com.kecepret.myhome.model.UserSession;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -68,21 +74,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "a:a", "hafizh:hafizh", "restu:restu", "dandy:dandy"
     };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mUserName;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
     private GoogleSignInClient mGoogleSignInClient;
+    private AppCompatButton mEmailSignInButton;
+    private Button registerButton;
+    private SignInButton signInButton;
+
     private static int RC_SIGN_IN = 100;
 
     // User Session Manager Class
     UserSession session;
+    APIInterface apiInterface;
 
     private SharedPreferences sharedPreferences;
 
@@ -90,6 +95,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Get register button
+        registerButton = (Button) findViewById(R.id.register_button);
 
         // Set up the login form.
         mUserName = (AutoCompleteTextView) findViewById(R.id.username);
@@ -126,7 +134,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         // Get sign in button
-        AppCompatButton mEmailSignInButton = (AppCompatButton) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton = (AppCompatButton) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,9 +151,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -156,7 +161,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Set the dimensions of the sign-in button.
-        SignInButton signInButton = findViewById(R.id.sign_in_button);
+        signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         findViewById(R.id.sign_in_button).setOnClickListener(new OnClickListener() {
             @Override
@@ -214,12 +219,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (account != null) {
             String email = account.getEmail();
             String fullname = account.getDisplayName();
-            Intent intent = new Intent(getBaseContext(), RegisterActivity.class);
-            intent.putExtra("googleSignIn", true);
-            intent.putExtra("email", email);
-            intent.putExtra("fullname", fullname);
-            startActivity(intent);
-            finish();
+            String googleId = account.getId();
+            googleLogin(email, fullname, googleId);
         }
     }
 
@@ -273,9 +274,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mUserName.setError(null);
@@ -307,47 +305,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-        }
-    }
+            // Disable buttons for safety
+            mEmailSignInButton.setEnabled(false);
+            registerButton.setEnabled(false);
+            signInButton.setEnabled(false);
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            // Perform login attempt
+            Login(email, password);
         }
     }
 
@@ -405,87 +369,80 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public void Login(final String username, final String password){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        User user = new User(username, password);
+        Call<ResponseBE> call = apiInterface.login(user);
 
-        private final String mEmail;
-        private final String mPassword;
+        call.enqueue(new Callback<ResponseBE>() {
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                ResponseBE resource = response.body();
+                Boolean success = resource.success;
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+                if (success) {
+                    session.createUserLoginSession(username, password);
 
-            /*try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }*/
+                    // Starting MainActivity
+                    Intent i = new  Intent(getApplicationContext(),MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                    // Add new Flag to start new Activity
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Incorrect username or password",
+                            Toast.LENGTH_LONG).show();
                 }
             }
 
-            // TODO: register the new account here.
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-
-                String uName = null;
-                String uPassword = null;
-
-                sharedPreferences = getSharedPreferences(PREFER_NAME, Context.MODE_PRIVATE);
-
-                if (sharedPreferences.contains("Name")) {
-                    uName = sharedPreferences.getString("Name", "");
-
-                }
-
-                if (sharedPreferences.contains("txtPassword")) {
-                    uPassword = sharedPreferences.getString("txtPassword", "");
-
-                }
-
-                session.createUserLoginSession(uName, uPassword);
-
-                // Starting MainActivity
-                Intent i = new  Intent(getApplicationContext(),MainActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                // Add new Flag to start new Activity
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
-                finish();
-
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
             }
-        }
+        });
+    }
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+    public void googleLogin(final String email, final String fullname, final String google_id){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        GoogleId googleId = new GoogleId(google_id);
+        Call<ResponseBE> call = apiInterface.login_google(googleId);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                ResponseBE resource = response.body();
+                Boolean exist = resource.success;
+
+                if (exist) {
+                    session.createUserLoginSession(email, email);
+
+                    // Starting MainActivity
+                    Intent i = new  Intent(getApplicationContext(),MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    // Add new Flag to start new Activity
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Intent intent = new Intent(getBaseContext(), RegisterActivity.class);
+                    intent.putExtra("email", email);
+                    intent.putExtra("fullname", fullname);
+                    intent.putExtra("googleId", google_id);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
     }
 }
 

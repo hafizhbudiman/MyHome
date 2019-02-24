@@ -31,13 +31,10 @@ public class UserSession {
     public static final String IS_USER_LOGIN = "IsUserLoggedIn";
 
     // User name (make variable public to access from outside)
-    public static final String KEY_NAME = "name";
+    public static final String KEY_NAME = "Name";
 
     // Email address (make variable public to access from outside)
-    public static final String KEY_EMAIL = "email";
-
-    // Firebase cloud messaging token
-    public static final String TOKEN = "FirebaseToken";
+    public static final String PASSWORD = "txtPassword";
 
     // Constructor
     public UserSession(Context context){
@@ -47,15 +44,15 @@ public class UserSession {
     }
 
     //Create login session
-    public void createUserLoginSession(Object uName, Object uEmail){
+    public void createUserLoginSession(String uName, String uPassword){
         // Storing login value as TRUE
         editor.putBoolean(IS_USER_LOGIN, true);
 
         // Storing name in preferences
-        editor.putString(KEY_NAME, (String) uName);
+        editor.putString(KEY_NAME, uName);
 
         // Storing email in preferences
-        editor.putString(KEY_EMAIL, (String) uEmail);
+        editor.putString(PASSWORD, uPassword);
 
         // commit changes
         editor.commit();
@@ -101,7 +98,7 @@ public class UserSession {
         user.put(KEY_NAME, pref.getString(KEY_NAME, null));
 
         // user email id
-        user.put(KEY_EMAIL, pref.getString(KEY_EMAIL, null));
+        user.put(PASSWORD, pref.getString(PASSWORD, null));
 
         // return user
         return user;
