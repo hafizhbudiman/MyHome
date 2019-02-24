@@ -9,4 +9,12 @@
         <item name="android:fontFamily">@font/circular_book</item>
     </style>
 
+    <style name="AppLogin" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/circular_book</item>
+    </style>
+
 </resources>

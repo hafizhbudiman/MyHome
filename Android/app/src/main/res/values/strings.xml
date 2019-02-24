@@ -51,4 +51,6 @@
     <string name="prompt_address">Address</string>
 
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="prompt_fullname">Full Name</string>
+    <string name="register_header">Please fill in your personal details to register</string>
 </resources>
