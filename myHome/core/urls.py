@@ -25,6 +25,12 @@ user_router.register('users', views.UserViewSet, base_name='users')
 login_router = routers.SimpleRouter()
 login_router.register('login', views.LoginViewSet, base_name='login')
 
+user_token_router = routers.SimpleRouter()
+user_token_router.register('usertokens', views.UserTokenViewSet, base_name='usertokens')
+
+notification_router = routers.SimpleRouter()
+notification_router.register('notifications', views.NotificationViewSet, base_name='notifications')
+
 urlpatterns = []
 urlpatterns += door_log_router.urls
 urlpatterns += door_router.urls
@@ -33,3 +39,5 @@ urlpatterns += lamp_router.urls
 urlpatterns += token_router.urls
 urlpatterns += user_router.urls
 urlpatterns += login_router.urls
+urlpatterns += user_token_router.urls
+urlpatterns += notification_router.urls
