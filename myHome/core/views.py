@@ -26,7 +26,9 @@ from core.serializers import (
     LampSerializer,
     LoginSerializer,
     NotificationSerializer,
+    OwnerSerializer,
     TokenSerializer,
+    UserDetailSerializer,
     UserSerializer,
     UserTokenSerializer,
 )
@@ -146,6 +148,18 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
 
         return Response({'status': True})
 
+    @action(methods=['post'], detail=False)
+    def google_detail(self, request):
+        userProfile = UserProfile.objects.filter(google_id=request.data['google_id']).first()
+
+        return Response(OwnerSerializer(userProfile.user).data)
+
+    @action(methods=['post'], detail=False)
+    def username_detail(self, request):
+        userProfile = UserProfile.objects.filter(user__username=request.data['username']).first()
+# 
+        return Response(UserDetailSerializer(userProfile).data)
+
 
 class LoginViewSet(viewsets.GenericViewSet):
     serializer_class = LoginSerializer
@@ -161,6 +175,14 @@ class LoginViewSet(viewsets.GenericViewSet):
             return Response({'status': False})
         else:
             return Response({'status': True})
+
+    @action(methods=['post'], detail=False)
+    def google(self, request):
+        user = UserProfile.objects.filter(google_id=request.data['google_id']).first()
+        if user is not None:
+            return Response({'status': True})
+        else:
+            return Response({'status': False})
 
 
 class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

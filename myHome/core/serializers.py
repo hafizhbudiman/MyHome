@@ -7,12 +7,12 @@ from core.models import (
     Lamp,
     Notification,
     Token,
+    UserProfile,
     UserToken,
 )
 
 
 class OwnerSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = User
         fields = ('username',)
@@ -76,3 +76,12 @@ class UserTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserToken
         fields = '__all__'
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.CharField(source='user.email')    
+
+    class Meta:
+        model = UserProfile
+        fields = ('email', 'username', 'name', 'phone', 'address')

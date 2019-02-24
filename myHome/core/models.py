@@ -69,3 +69,9 @@ class UserProfile(models.Model):
     google_id = models.CharField(max_length=1000)
     address = models.CharField(max_length=128)
     phone = models.CharField(max_length=128)
+
+    def get_username(self):
+        return self.user.username
+
+    def get_email(self):
+        return self.user.email
