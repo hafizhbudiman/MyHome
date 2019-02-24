@@ -42,4 +42,6 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_phone">Phone Number</string>
     <string name="prompt_address">Address</string>
+
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 </resources>

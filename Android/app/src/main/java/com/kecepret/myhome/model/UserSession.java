@@ -36,6 +36,9 @@ public class UserSession {
     // Email address (make variable public to access from outside)
     public static final String KEY_EMAIL = "email";
 
+    // Firebase cloud messaging token
+    public static final String TOKEN = "FirebaseToken";
+
     // Constructor
     public UserSession(Context context){
         this._context = context;
