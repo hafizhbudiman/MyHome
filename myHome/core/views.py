@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.db import transaction
@@ -29,6 +30,8 @@ from core.serializers import (
     UserSerializer,
     UserTokenSerializer,
 )
+
+from pyfcm import FCMNotification
 
 
 class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -165,14 +168,33 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     @transaction.atomic
     def create(self, request, *arg, **kwargs):
-        user = User.objects.filter(username=request.data['username']).first()
+        user = User.objects.filter(username='rwk').first() # Change username later
         if user is None:
             return Response({'status': False})
 
         notification = Notification.objects.create(owner=user, tipe=request.data['tipe'])
-        if notification.tipe == 2:
+        if 'nominal' in request.data:
             notification.nominal = request.data['nominal']
         notification.save()
+        
+        userTokens = UserToken.objects.filter(user=user)
+        push_service = FCMNotification(api_key=getattr(settings, 'API_KEY', None))
+        for userToken in userTokens:
+            message_title = ''
+            message_body = ''
+            
+            if 'nominal' in request.data:
+                message_title = 'Token Reward'
+                message_body = 'You have received IDR ' + str(request.data['nominal']) + ',- token reward.'
+            else:
+                message_title = 'Door Alert'
+                message_body = 'Unauthorized door activity detected.'
+
+            result = push_service.notify_single_device(
+                registration_id=userToken.token,
+                message_title=message_title,
+                message_body=message_body
+                )
 
         return Response({'status': True})
 
