@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
-    public Location mCurrentLocation;
+    public static Location mCurrentLocation;
+    private boolean isInLocation;
 
     // boolean flag to toggle the ui
     private Boolean mRequestingLocationUpdates;
@@ -135,7 +136,44 @@ public class MainActivity extends AppCompatActivity implements
                         /*Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();*/
                     }
                 });
+
     }
+
+    private boolean isInLocation() {
+        boolean isInLocation = false;
+
+        double lat2 = mCurrentLocation.getLatitude();
+        double lng2 = mCurrentLocation.getLongitude();
+
+        // lat1 and lng1 are the values of a previously stored location
+        if (distance(LATITUDE_ITB, LONGITUDE_ITB, lat2, lng2) < 0.1) { // if distance < 0.1 miles we take locations as equal
+            isInLocation = true;
+        }
+        return isInLocation;
+    }
+
+    /** calculates the distance between two locations in MILES */
+    private double distance(double lat1, double lng1, double lat2, double lng2) {
+
+        double earthRadius = 3958.75; // in miles, change to 6371 for kilometer output
+
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double dist = earthRadius * c;
+
+        return dist; // output distance, in MILES
+    }
+
+
 
     private void init() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -197,6 +235,14 @@ public class MainActivity extends AppCompatActivity implements
         if (mCurrentLocation != null) {
             Log.i(TAG, "Lat: " + mCurrentLocation.getLatitude() + ", " +
                     "Lng: " + mCurrentLocation.getLongitude());
+
+            isInLocation = isInLocation();
+
+            if (isInLocation) {
+                Toast.makeText(MainActivity.this, "isInLocation", Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(MainActivity.this, "Not isInLocation", Toast.LENGTH_LONG).show();
+            }
         }
         else {
             Log.i(TAG, "null");
