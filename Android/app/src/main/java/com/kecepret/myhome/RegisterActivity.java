@@ -174,7 +174,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    public void Register(final String fullname, final String username, final String password, String email, String phoneNumber, String address){
+    public void Register(final String fullname, final String username, final String password, final String email, final String phoneNumber, final String address){
 
         apiInterface = APIClient.getClient().create(APIInterface.class);
         Register register = new Register(username, email, password, fullname, address, googleId, phoneNumber);
@@ -188,7 +188,7 @@ public class RegisterActivity extends AppCompatActivity {
                 Boolean success = resource.success;
 
                 if (success) {
-                    session.createUserLoginSession(username, password);
+                    session.createUserLoginSession(username, password, fullname, email, phoneNumber, address);
 
                     Toast.makeText(getApplicationContext(), "Logged in as " + fullname,
                             Toast.LENGTH_LONG).show();

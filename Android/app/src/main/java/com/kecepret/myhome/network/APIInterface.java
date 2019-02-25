@@ -9,6 +9,7 @@ import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Token;
 import com.kecepret.myhome.model.TokenResponse;
 import com.kecepret.myhome.model.User;
+import com.kecepret.myhome.model.UserDetail;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -33,6 +34,9 @@ public interface APIInterface {
 
     @POST("/users/")
     Call<ResponseBE> register(@Body Register register);
+
+    @POST("/users/username_detail/")
+    Call<UserDetail> get_details(@Body String username);
 
     @POST("/usertokens/")
     Call<ResponseBE> send_token(@Body Token token);

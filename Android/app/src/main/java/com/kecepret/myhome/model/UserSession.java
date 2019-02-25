@@ -33,8 +33,20 @@ public class UserSession {
     // User name (make variable public to access from outside)
     public static final String KEY_NAME = "Name";
 
-    // Email address (make variable public to access from outside)
+    // password (make variable public to access from outside)
     public static final String PASSWORD = "txtPassword";
+
+    // Full name (make variable public to access from outside)
+    public static final String FULL_NAME = "Full Name";
+
+    // Email address (make variable public to access from outside)
+    public static final String EMAIL = "sample@example.com";
+
+    // Phone (make variable public to access from outside)
+    public static final String PHONE_NUMBER = "+6281234567890";
+
+    // Address (make variable public to access from outside)
+    public static final String ADDRESS = "Jl. Ganesha no 10";
 
     // Constructor
     public UserSession(Context context){
@@ -44,15 +56,27 @@ public class UserSession {
     }
 
     //Create login session
-    public void createUserLoginSession(String uName, String uPassword){
+    public void createUserLoginSession(String uName, String uPassword, String uFullName, String uEmail, String uPhoneNumber, String uAddress){
         // Storing login value as TRUE
         editor.putBoolean(IS_USER_LOGIN, true);
 
         // Storing name in preferences
         editor.putString(KEY_NAME, uName);
 
-        // Storing email in preferences
+        // Storing password in preferences
         editor.putString(PASSWORD, uPassword);
+
+        // Storing full name in preferences
+        editor.putString(FULL_NAME, uFullName);
+
+        // Storing email in preferences
+        editor.putString(EMAIL, uEmail);
+
+        // Storing phone number in preferences
+        editor.putString(PHONE_NUMBER, uPhoneNumber);
+
+        // Storing address in preferences
+        editor.putString(ADDRESS, uAddress);
 
         // commit changes
         editor.commit();
@@ -84,14 +108,24 @@ public class UserSession {
         return false;
     }
 
+    public String getFullName() {
+        return (pref.getString(FULL_NAME, null));
+    }
 
-
-    /**
-     * Get stored session data
-     * */
     public String getUsername(){
         return (pref.getString(KEY_NAME, null));
+    }
 
+    public String getEmail() {
+        return (pref.getString(EMAIL, null));
+    }
+
+    public String getPhoneNumber() {
+        return (pref.getString(PHONE_NUMBER, null));
+    }
+
+    public String getAddress() {
+        return (pref.getString(ADDRESS, null));
     }
 
     /**

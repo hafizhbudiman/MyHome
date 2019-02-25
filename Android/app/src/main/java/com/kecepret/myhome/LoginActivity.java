@@ -42,6 +42,7 @@ import com.kecepret.myhome.model.GoogleId;
 import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.User;
 
+import com.kecepret.myhome.model.UserDetail;
 import com.kecepret.myhome.model.UserSession;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
@@ -382,12 +383,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Boolean success = resource.success;
 
                 if (success) {
-                    session.createUserLoginSession(username, password);
-
-                    // Starting MainActivity
-                    Intent i = new  Intent(getApplicationContext(),MainActivity.class);
-                    startActivity(i);
-                    finish();
+                    getDetails(username, password);
                 } else {
 
                     mEmailSignInButton.setEnabled(true);
@@ -419,19 +415,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Boolean exist = resource.success;
 
                 if (exist) {
-                    session.createUserLoginSession(email, email);
-
-                    Toast.makeText(getApplicationContext(), "Logged in as " + fullname,
-                            Toast.LENGTH_LONG).show();
-
-                    // Starting MainActivity
-                    Intent i = new  Intent(getApplicationContext(),MainActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                    // Add new Flag to start new Activity
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(i);
-                    finish();
+                    getDetails(email,email);
                 } else {
                     Intent intent = new Intent(getBaseContext(), RegisterActivity.class);
                     intent.putExtra("email", email);
@@ -444,6 +428,39 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             @Override
             public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
+    }
+
+    public void getDetails(final String username, final String password){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Call<UserDetail> call = apiInterface.get_details(username);
+
+        call.enqueue(new Callback<UserDetail>() {
+
+            @Override
+            public void onResponse(Call<UserDetail> call, Response<UserDetail> response) {
+                UserDetail resource = response.body();
+
+                session.createUserLoginSession(username, password,
+                        resource.getName(), resource.getEmail(), resource.getPhone(), resource.getAddress());
+
+                Toast.makeText(getApplicationContext(), "Logged in as " + resource.getName(),
+                        Toast.LENGTH_LONG).show();
+
+                // Starting MainActivity
+                Intent i = new  Intent(getApplicationContext(),MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                // Add new Flag to start new Activity
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<UserDetail> call, Throwable t) {
                 call.cancel();
             }
         });

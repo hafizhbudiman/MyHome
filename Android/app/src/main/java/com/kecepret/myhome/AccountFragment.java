@@ -6,10 +6,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -26,24 +29,27 @@ import com.kecepret.myhome.model.UserSession;
  * Activities that contain this fragment must implement the
  * {@link AccountFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AccountFragment#newInstance} factory method to
+ * Use the {@link AccountFragment #newInstance} factory method to
  * create an instance of this fragment.
  */
 public class AccountFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
 
     private View rootView;
 
     private GoogleSignInClient mGoogleSignInClient;
+
+    private String fullName;
+    private String userName;
+    private String email;
+    private String phoneNumber;
+    private String address;
+
+    private TextView tvFullName;
+    private TextView tvUserName;
+    private TextView tvEmail;
+    private TextView tvPhoneNumber;
+    private TextView tvAddress;
 
     UserSession session;
 
@@ -51,31 +57,9 @@ public class AccountFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AccountFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AccountFragment newInstance(String param1, String param2) {
-        AccountFragment fragment = new AccountFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -86,6 +70,28 @@ public class AccountFragment extends Fragment {
 
         // User Session Manager
         session = new UserSession(rootView.getContext());
+
+        // Update fragment text accordingly
+        fullName = session.getFullName();
+        userName = session.getUsername();
+        email = session.getEmail();
+        phoneNumber = session.getPhoneNumber();
+        address = session.getAddress();
+
+        tvFullName = rootView.findViewById(R.id.name);
+        tvUserName = rootView.findViewById(R.id.username);
+        tvEmail = rootView.findViewById(R.id.email);
+        tvPhoneNumber = rootView.findViewById(R.id.phone);
+        tvAddress = rootView.findViewById(R.id.address);
+
+        tvFullName.setText(fullName);
+        tvUserName.setText(userName);
+        tvEmail.setText(email);
+        tvPhoneNumber.setText(phoneNumber);
+        tvAddress.setText(address);
+
+        Toast.makeText(rootView.getContext(), userName,
+                Toast.LENGTH_LONG).show();
 
         Button logOutButton = (Button) rootView.findViewById(R.id.logout);
         logOutButton.setOnClickListener(new View.OnClickListener() {
