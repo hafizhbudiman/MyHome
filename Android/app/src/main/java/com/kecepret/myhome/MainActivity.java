@@ -5,6 +5,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.PermissionRequest;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -40,14 +45,30 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.kecepret.myhome.model.Lamp;
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.UserSession;
+import com.kecepret.myhome.model.Username;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Date;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static java.lang.Math.abs;
 
 public class MainActivity extends AppCompatActivity implements
         HomeFragment.OnFragmentInteractionListener,
         AccountFragment.OnFragmentInteractionListener,
-        NotificationsFragment.OnFragmentInteractionListener {
+        NotificationsFragment.OnFragmentInteractionListener,
+        SensorEventListener {
 
     private String mLastUpdateTime;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -75,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements
     private String TAG = "QWERTY";
 
     Fragment fragment;
+
+    // Magnetic Sensor Purpose
+    private SensorManager sensorManager;
+    private View rootView;
+    private String username;
+    public static DecimalFormat DECIMAL_FORMATTER;
+    public Date lastTime;
+    float lastX, lastY, lastZ;
+    APIInterface apiInterface;
+    UserSession session;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -117,6 +148,16 @@ public class MainActivity extends AppCompatActivity implements
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         loadFragment(new HomeFragment());
+
+        // Magnetic sensor purpose
+        lastTime = new Date();
+        lastX = 0; lastY = 0; lastZ = 0;
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        symbols.setDecimalSeparator('.');
+        DECIMAL_FORMATTER = new DecimalFormat("#.000", symbols);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        session = new UserSession(this);
+        username = session.getUsername();
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
@@ -238,11 +279,11 @@ public class MainActivity extends AppCompatActivity implements
 
             isInLocation = isInLocation();
 
-            if (isInLocation) {
-                Toast.makeText(MainActivity.this, "isInLocation", Toast.LENGTH_LONG).show();
-            }else {
-                Toast.makeText(MainActivity.this, "Not isInLocation", Toast.LENGTH_LONG).show();
-            }
+//            if (isInLocation) {
+//                Toast.makeText(MainActivity.this, "isInLocation", Toast.LENGTH_LONG).show();
+//            }else {
+//                Toast.makeText(MainActivity.this, "Not isInLocation", Toast.LENGTH_LONG).show();
+//            }
         }
         else {
             Log.i(TAG, "null");
@@ -364,6 +405,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         updateLocationUI();
+
+        sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -374,6 +417,8 @@ public class MainActivity extends AppCompatActivity implements
             // pausing location updates
             stopLocationUpdates();
         }
+
+        sensorManager.unregisterListener((SensorEventListener) this);
     }
 
     public boolean loadFragment(Fragment fragment) {
@@ -391,6 +436,54 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onFragmentInteraction(Uri uri){
         //you can leave it empty
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            // get values for each axes X,Y,Z
+            float magX = event.values[0];
+            float magY = event.values[1];
+            float magZ = event.values[2];
+
+            Date d = new Date();
+            if (abs(magX - lastX) > 5 || abs(magY - lastY) > 5 || abs(magZ - lastZ) > 5)
+                lastTime = d;
+            long diffTime = d.getTime() - lastTime.getTime();
+            long diffSeconds = diffTime / 1000 % 60;
+
+            if(diffSeconds > 10) {
+                apiInterface = APIClient.getClient().create(APIInterface.class);
+                Username name = new Username(username);
+                Call<ResponseBE> call = apiInterface.turnOffAll(name);
+                lastTime = d;
+
+                call.enqueue(new Callback<ResponseBE>() {
+
+                    @Override
+                    public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                        ResponseBE resource = response.body();
+                        Boolean success = resource.success;
+                        if(success) {
+                            Toast.makeText(MainActivity.this, "Semua lampu telah dimatikan dan pintu telah dikunci", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBE> call, Throwable t) {
+                        call.cancel();
+                    }
+                });
+            }
+
+            lastX = magX;
+            lastY = magY;
+            lastZ = magZ;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
 }
