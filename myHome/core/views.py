@@ -55,9 +55,15 @@ class DoorLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
 
 class DoorViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Door.objects.all()
     serializer_class = DoorSerializer
     # permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Door.objects.all()
+        username = self.request.query_params.get('username', None)
+        if username:
+            queryset = queryset.filter(owner__username=username)
+        return queryset
 
     @action(methods=['post'], detail=False)
     def lock_unlock(self, request):
@@ -69,7 +75,9 @@ class DoorViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if door is None:
             return Response({'success': False})
         else:
+            print(door.locked)
             door.locked = not(door.locked)
+            print(door.locked)
             door.save()
 
         return Response({'success': True})
@@ -82,9 +90,15 @@ class ElectricityAccountViewSet(viewsets.ModelViewSet):
 
 
 class LampViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Lamp.objects.all()
     serializer_class = LampSerializer
     # permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Lamp.objects.all()
+        username = self.request.query_params.get('username', None)
+        if username:
+            queryset = queryset.filter(owner__username=username)
+        return queryset
 
     @action(methods=['post'], detail=False)
     def turn_on_off(self, request):
@@ -99,6 +113,30 @@ class LampViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             lamp.on = not(lamp.on)
             lamp.save()
 
+        return Response({'success': True})
+
+    @action(methods=['post'], detail=False)
+    def turn_off_all(self, request):
+        user = User.objects.filter(username=request.data['username']).first()
+        if user is None:
+            return Response({'success': False})
+        
+        lamps = Lamp.objects.filter(owner__username=user.username)
+        if lamps is None:
+            return Response({'success': False})
+        
+        for lamp in lamps:
+            lamp.on = False
+            lamp.save()
+        
+        doors = Door.objects.filter(owner__username=user.username)
+        if doors is None:
+            return Response({'success': False})
+        
+        for door in doors:
+            door.locked = True
+            door.save()
+        
         return Response({'success': True})
 
 
@@ -146,7 +184,7 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
             userProfile.google_id = request.data['google_id']
         userProfile.save()
 
-        return Response({'status': True})
+        return Response({'success': True})
 
     @action(methods=['post'], detail=False)
     def google_detail(self, request):
@@ -168,21 +206,21 @@ class LoginViewSet(viewsets.GenericViewSet):
         if 'google_id' in request.data:
             user = UserProfile.objects.filter(google_id=request.data['google_id']).first()
             if user is not None:
-                return Response({'status': True})
+                return Response({'success': True})
 
         user = authenticate(username=request.data['username'], password=request.data['password'])        
         if not user:
-            return Response({'status': False})
+            return Response({'success': False})
         else:
-            return Response({'status': True})
+            return Response({'success': True})
 
     @action(methods=['post'], detail=False)
     def google(self, request):
         user = UserProfile.objects.filter(google_id=request.data['google_id']).first()
         if user is not None:
-            return Response({'status': True})
+            return Response({'success': True})
         else:
-            return Response({'status': False})
+            return Response({'success': False})
 
 
 class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -192,7 +230,7 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def create(self, request, *arg, **kwargs):
         user = User.objects.filter(username='rwk').first() # Change username later
         if user is None:
-            return Response({'status': False})
+            return Response({'success': False})
 
         notification = Notification.objects.create(owner=user, tipe=request.data['tipe'])
         if 'nominal' in request.data:
@@ -218,7 +256,7 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 message_body=message_body
                 )
 
-        return Response({'status': True})
+        return Response({'success': True})
 
     def get_queryset(self):
         queryset = Notification.objects.all()
@@ -236,7 +274,7 @@ class UserTokenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data['username']).first()
         if user is None:
-            return Response({'status': False})
+            return Response({'success': False})
             
         userToken = UserToken.objects.create(user=user, token=request.data['token'])
 

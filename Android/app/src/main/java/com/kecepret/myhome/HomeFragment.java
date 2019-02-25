@@ -15,6 +15,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.kecepret.myhome.model.Door;
 import com.kecepret.myhome.model.Lamp;
 import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Result;
@@ -178,19 +179,39 @@ public class HomeFragment extends Fragment {
                  * method you would use to setup whatever you want done once the
                  * device has been shook.
                  */
+                apiInterface = APIClient.getClient().create(APIInterface.class);
+                Door door = new Door(username, 1);
+                Call<ResponseBE> call = apiInterface.lockUnlock(door);
 
-                String buttonString = frontDoorButton.getText().toString();
-                String doorToast = "Error occured";
+                call.enqueue(new Callback<ResponseBE>() {
 
-                if((buttonString.equals(getString(R.string.door_lock)))){
-                    frontDoorButton.setText(getString(R.string.door_unlock));
-                    doorToast = "Front door is unlocked";
-                }else if((buttonString.equals(getString(R.string.door_unlock)))){
-                    frontDoorButton.setText(getString(R.string.door_lock));
-                    doorToast = "Front door is locked";
-                }
+                    @Override
+                    public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                        String buttonString = frontDoorButton.getText().toString();
+                        String doorToast = "Error occured";
+                        ResponseBE resource = response.body();
+                        Boolean success = resource.success;
+                        if(success) {
+                            if ((buttonString.equals(getString(R.string.door_lock)))) {
+                                frontDoorButton.setText(getString(R.string.door_unlock));
+                                doorToast = "Front door is unlocked";
+                            } else if ((buttonString.equals(getString(R.string.door_unlock)))) {
+                                frontDoorButton.setText(getString(R.string.door_lock));
+                                doorToast = "Front door is locked";
+                            }
+                        }
 
-                Toast.makeText(getActivity(), doorToast, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), doorToast, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBE> call, Throwable t) {
+                        String doorToast = "Error occured";
+                        Toast.makeText(getActivity(), doorToast, Toast.LENGTH_SHORT).show();
+                        call.cancel();
+                    }
+                });
+
             }
         });
 
