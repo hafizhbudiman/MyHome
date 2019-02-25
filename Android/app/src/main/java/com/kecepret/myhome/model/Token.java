@@ -6,8 +6,8 @@ public class Token {
     private String token;
 
     public Token (String token, String username) {
-        this.token = token;
         this.username = username;
+        this.token = token;
     }
 
     public String getUsername() {

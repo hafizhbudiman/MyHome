@@ -164,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements
         symbols.setDecimalSeparator('.');
         DECIMAL_FORMATTER = new DecimalFormat("#.000", symbols);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
         session = new UserSession(this);
         username = session.getUsername();
 
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements
 
                         // Get new Instance ID token
                         token = task.getResult().getToken();
+                        sendToken(token, username);
 
                         // Log and toast
                         String msg = getString(R.string.msg_token_fmt, token);
@@ -185,12 +187,6 @@ public class MainActivity extends AppCompatActivity implements
                         /*Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();*/
                     }
                 });
-
-        // User Session Manager
-        session = new UserSession(this);
-        username = session.getUsername();
-
-        sendToken(token, username);
     }
 
     private boolean isInLocation() {
