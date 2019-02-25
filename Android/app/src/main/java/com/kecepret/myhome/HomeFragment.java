@@ -94,10 +94,6 @@ public class HomeFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         context = getActivity().getApplicationContext();
-
-        // User Session Manager
-        session = new UserSession(rootView.getContext());
-        username = session.getUsername();
     }
 
     @Override
@@ -106,6 +102,10 @@ public class HomeFragment extends Fragment {
 
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        // User Session Manager
+        session = new UserSession(rootView.getContext());
+        username = session.getUsername();
 
         Switch terraceSwitch = rootView.findViewById(R.id.switch1);
         Switch livingRoomSwitch = rootView.findViewById(R.id.switch2);
