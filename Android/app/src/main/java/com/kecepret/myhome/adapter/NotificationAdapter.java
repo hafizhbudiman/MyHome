@@ -74,7 +74,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
 
         public void bind(Notification item) {
-            if (item.getNominal() > 0) {
+            if (item.getTipe() == 2) {
                 String msg = "You have received IDR " + item.getNominal() + " token reward";
                 message.setText(msg);
                 notificationImage.setImageResource(R.drawable.diamond);

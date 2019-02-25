@@ -3,7 +3,6 @@ package com.kecepret.myhome;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,6 +20,7 @@ import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Result;
 import com.kecepret.myhome.model.TokenResponse;
 import com.kecepret.myhome.model.User;
+import com.kecepret.myhome.model.UserSession;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
 import com.kecepret.myhome.network.ServiceGenerator;
@@ -59,8 +59,10 @@ public class HomeFragment extends Fragment {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
-    APIInterface apiInterface;
+    private String username;
+    UserSession session;
 
+    APIInterface apiInterface;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -101,6 +103,10 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
+        // User Session Manager
+        session = new UserSession(rootView.getContext());
+        username = session.getUsername();
+
         Switch terraceSwitch = rootView.findViewById(R.id.switch1);
         Switch livingRoomSwitch = rootView.findViewById(R.id.switch2);
         Switch bedroomSwitch = rootView.findViewById(R.id.switch3);
@@ -111,7 +117,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
                 String message = "";
-                TurnOnOffLamp("rwk", 1);
+                TurnOnOffLamp(username, 1);
                 if (isChecked) {
                     message = "Terrace lamp turned on";
                 } else {
@@ -129,7 +135,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
-                TurnOnOffLamp("rwk", 2);
+                TurnOnOffLamp(username, 2);
                 if (isChecked) {
                     message = "Living room lamp turned on";
                 } else {
@@ -146,7 +152,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
-                TurnOnOffLamp("rwk", 3);
+                TurnOnOffLamp(username, 3);
                 if (isChecked) {
                     message = "Bedroom lamp turned on";
                 } else {

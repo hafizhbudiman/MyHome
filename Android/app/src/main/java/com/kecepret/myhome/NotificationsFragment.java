@@ -70,10 +70,10 @@ public class NotificationsFragment extends Fragment {
 
     private List<Notification> getNotificationList() {
         notificationList = new ArrayList<>();
-        notificationList.add(new Notification(-1,"0"));
-        notificationList.add(new Notification(25000,"ABCDE"));
-        notificationList.add(new Notification(-1,"0"));
-        notificationList.add(new Notification(100000,"ABCDE"));
+        notificationList.add(new Notification(-1,"0", 1));
+        notificationList.add(new Notification(25000,"ABCDE", 2));
+        notificationList.add(new Notification( -1,"0", 1));
+        notificationList.add(new Notification(100000,"ABCDE", 2));
         return notificationList;
     }
 
