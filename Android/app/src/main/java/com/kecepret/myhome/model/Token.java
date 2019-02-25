@@ -5,6 +5,11 @@ public class Token {
     private String username;
     private String token;
 
+    public Token (String token, String username) {
+        this.token = token;
+        this.username = username;
+    }
+
     public String getUsername() {
         return username;
     }
