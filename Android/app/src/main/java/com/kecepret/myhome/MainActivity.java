@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements
 
         // initialize the necessary libraries
         init();
+        mRequestingLocationUpdates = true;
+        startLocationUpdates();
 
         // restore the values from saved instance state
         restoreValuesFromBundle(savedInstanceState);
@@ -168,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
+
+
     }
 
     /**
@@ -200,7 +204,10 @@ public class MainActivity extends AppCompatActivity implements
         if (mCurrentLocation != null) {
             Log.i(TAG, "Lat: " + mCurrentLocation.getLatitude() + ", " +
                     "Lng: " + mCurrentLocation.getLongitude());
-            }
+        }
+        else {
+            Log.i(TAG, "null");
+        }
     }
 
     @Override
