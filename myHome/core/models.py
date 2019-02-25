@@ -51,7 +51,7 @@ class DoorLog(models.Model):
 
 class UserToken(models.Model):
     user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="tokens")
-    token = models.CharField(max_length=128)
+    token = models.CharField(max_length=512)
 
     def __str__(self):
         return f'{self.token}'

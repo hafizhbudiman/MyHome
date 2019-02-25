@@ -25,11 +25,9 @@ class DoorLogSerializer(serializers.ModelSerializer):
 
 
 class DoorSerializer(serializers.ModelSerializer):
-    owner = OwnerSerializer()
-
     class Meta:
         model = Door
-        fields = ('id', 'owner', 'house_id', 'locked')
+        fields = ('id', 'house_id', 'locked')
 
 
 class ElectricityAccountSerializer(serializers.ModelSerializer):
@@ -41,11 +39,9 @@ class ElectricityAccountSerializer(serializers.ModelSerializer):
 
 
 class LampSerializer(serializers.ModelSerializer):
-    owner = OwnerSerializer()
-
     class Meta:
         model = Lamp
-        fields = ('id', 'owner', 'house_id', 'on')
+        fields = ('id', 'house_id', 'on')
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -69,7 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('id', 'tipe', 'nominal', 'owner')
+        fields = ('tipe', 'nominal', 'owner')
 
 
 class UserTokenSerializer(serializers.ModelSerializer):
