@@ -17,7 +17,7 @@ public interface APIInterface {
     Call<ResponseBE> turnOnOff(@Body Lamp lamp);
 
     @POST("/doors/lock_unlock/")
-    Call<ResponseBE> turnOnOff(@Body Door door);
+    Call<ResponseBE> lockUnlock(@Body Door door);
 
     @POST("/login/")
     Call<ResponseBE> login(@Body User user);
