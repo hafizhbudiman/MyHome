@@ -49,6 +49,8 @@ import com.kecepret.myhome.model.Lamp;
 import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.UserSession;
 import com.kecepret.myhome.model.Username;
+import com.kecepret.myhome.model.Token;
+import com.kecepret.myhome.model.UserSession;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
 
@@ -63,6 +65,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static java.lang.Math.abs;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
         HomeFragment.OnFragmentInteractionListener,
@@ -94,6 +100,12 @@ public class MainActivity extends AppCompatActivity implements
     private FrameLayout fragmentContainer;
     private BottomNavigationView navigation;
     private String TAG = "QWERTY";
+
+    // API related variables
+    private String username;
+    private String token;
+    UserSession session;
+    APIInterface apiInterface;
 
     Fragment fragment;
 
@@ -169,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements
                         }
 
                         // Get new Instance ID token
-                        String token = task.getResult().getToken();
+                        token = task.getResult().getToken();
 
                         // Log and toast
                         String msg = getString(R.string.msg_token_fmt, token);
@@ -178,6 +190,11 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
 
+        // User Session Manager
+        session = new UserSession(this);
+        username = session.getUsername();
+
+        sendToken(token, username);
     }
 
     private boolean isInLocation() {
@@ -484,6 +501,23 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public void sendToken(String token, String username){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Token mToken = new Token(token, username);
+        Call<ResponseBE> call = apiInterface.send_token(mToken);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
+                // do nothing
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
     }
 
 }
