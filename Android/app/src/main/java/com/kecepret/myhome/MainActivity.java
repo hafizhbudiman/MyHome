@@ -291,11 +291,11 @@ public class MainActivity extends AppCompatActivity implements
 
             isInLocation = isInLocation();
 
-//            if (isInLocation) {
-//                Toast.makeText(MainActivity.this, "isInLocation", Toast.LENGTH_LONG).show();
-//            }else {
-//                Toast.makeText(MainActivity.this, "Not isInLocation", Toast.LENGTH_LONG).show();
-//            }
+            if (isInLocation) {
+                Toast.makeText(MainActivity.this, "You are currently at home.", Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(MainActivity.this, "You are currently not at home.", Toast.LENGTH_LONG).show();
+            }
         }
         else {
             Log.i(TAG, "null");
