@@ -49,18 +49,12 @@ public class MainActivity extends AppCompatActivity implements
         AccountFragment.OnFragmentInteractionListener,
         NotificationsFragment.OnFragmentInteractionListener {
 
-    // location last updated time
     private String mLastUpdateTime;
-
-    // location updates interval - 10sec
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-
-    // fastest updates interval - 5 sec
-    // location updates will be received if another app is requesting the locations
-    // than your app can handle
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
-
     private static final int REQUEST_CHECK_SETTINGS = 100;
+    private static final double LATITUDE_ITB = -6.8906583;
+    private static final double LONGITUDE_ITB = 107.6093453;
 
     // bunch of location related apis
     private FusedLocationProviderClient mFusedLocationClient;
@@ -68,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
-    private Location mCurrentLocation;
+    public Location mCurrentLocation;
 
     // boolean flag to toggle the ui
     private Boolean mRequestingLocationUpdates;
@@ -142,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 });
     }
-
 
     private void init() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
