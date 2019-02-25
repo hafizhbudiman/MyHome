@@ -389,6 +389,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     startActivity(i);
                     finish();
                 } else {
+
+                    mEmailSignInButton.setEnabled(true);
+                    registerButton.setEnabled(true);
+                    signInButton.setEnabled(true);
+
                     Toast.makeText(getApplicationContext(), "Incorrect username or password",
                             Toast.LENGTH_LONG).show();
                 }

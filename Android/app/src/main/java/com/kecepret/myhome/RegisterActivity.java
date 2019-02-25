@@ -198,7 +198,10 @@ public class RegisterActivity extends AppCompatActivity {
                     startActivity(i);
                     finish();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Incorrect username or password",
+
+                    mSignUpButton.setEnabled(true);
+
+                    Toast.makeText(getApplicationContext(), "Username is already taken",
                             Toast.LENGTH_LONG).show();
                 }
             }
