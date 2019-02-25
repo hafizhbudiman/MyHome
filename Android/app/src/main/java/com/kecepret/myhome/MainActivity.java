@@ -45,6 +45,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.kecepret.myhome.model.Door;
 import com.kecepret.myhome.model.Lamp;
 import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.UserSession;
@@ -166,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         session = new UserSession(this);
         username = session.getUsername();
+
+        turnOffAll();
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
@@ -508,6 +511,24 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
                 // do nothing
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBE> call, Throwable t) {
+                call.cancel();
+            }
+        });
+    }
+
+    public void turnOffAll(){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Username name = new Username(username);
+        Call<ResponseBE> call = apiInterface.turnOffAll(name);
+
+        call.enqueue(new Callback<ResponseBE>() {
+
+            @Override
+            public void onResponse(Call<ResponseBE> call, Response<ResponseBE> response) {
             }
 
             @Override
