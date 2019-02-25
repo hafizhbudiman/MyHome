@@ -111,13 +111,9 @@ public class MainActivity extends AppCompatActivity implements
 
     // Magnetic Sensor Purpose
     private SensorManager sensorManager;
-    private View rootView;
-    private String username;
     public static DecimalFormat DECIMAL_FORMATTER;
     public Date lastTime;
     float lastX, lastY, lastZ;
-    APIInterface apiInterface;
-    UserSession session;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -500,7 +496,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
     public void sendToken(String token, String username){
         apiInterface = APIClient.getClient().create(APIInterface.class);
         Token mToken = new Token(token, username);

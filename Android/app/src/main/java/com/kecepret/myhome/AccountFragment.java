@@ -90,9 +90,6 @@ public class AccountFragment extends Fragment {
         tvPhoneNumber.setText(phoneNumber);
         tvAddress.setText(address);
 
-        Toast.makeText(rootView.getContext(), userName,
-                Toast.LENGTH_LONG).show();
-
         Button logOutButton = (Button) rootView.findViewById(R.id.logout);
         logOutButton.setOnClickListener(new View.OnClickListener() {
             @Override

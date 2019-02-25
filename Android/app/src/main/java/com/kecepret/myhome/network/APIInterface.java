@@ -9,6 +9,7 @@ import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Token;
 import com.kecepret.myhome.model.TokenResponse;
 import com.kecepret.myhome.model.User;
+import com.kecepret.myhome.model.UserDetail;
 import com.kecepret.myhome.model.Username;
 
 import retrofit2.Call;
@@ -40,6 +41,9 @@ public interface APIInterface {
 
     @POST("/usertokens/")
     Call<ResponseBE> send_token(@Body Token token);
+
+    @POST("/users/username_detail/")
+    Call<UserDetail> get_details(@Body Username username);
 
     @GET("/notifications/")
     Call<NotificationResponse> get_notification(@Query("username") String username);

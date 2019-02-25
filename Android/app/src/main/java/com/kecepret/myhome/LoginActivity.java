@@ -44,6 +44,7 @@ import com.kecepret.myhome.model.User;
 
 import com.kecepret.myhome.model.UserDetail;
 import com.kecepret.myhome.model.UserSession;
+import com.kecepret.myhome.model.Username;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
 
@@ -435,7 +436,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     public void getDetails(final String username, final String password){
         apiInterface = APIClient.getClient().create(APIInterface.class);
-        Call<UserDetail> call = apiInterface.get_details(username);
+        Username userName = new Username(username);
+        Call<UserDetail> call = apiInterface.get_details(userName);
 
         call.enqueue(new Callback<UserDetail>() {
 
