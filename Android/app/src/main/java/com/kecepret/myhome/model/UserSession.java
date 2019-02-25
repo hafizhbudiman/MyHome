@@ -89,19 +89,9 @@ public class UserSession {
     /**
      * Get stored session data
      * */
-    public HashMap<String, String> getUserDetails(){
+    public String getUsername(){
+        return (pref.getString(KEY_NAME, null));
 
-        //Use hashmap to store user credentials
-        HashMap<String, String> user = new HashMap<String, String>();
-
-        // user name
-        user.put(KEY_NAME, pref.getString(KEY_NAME, null));
-
-        // user email id
-        user.put(PASSWORD, pref.getString(PASSWORD, null));
-
-        // return user
-        return user;
     }
 
     /**

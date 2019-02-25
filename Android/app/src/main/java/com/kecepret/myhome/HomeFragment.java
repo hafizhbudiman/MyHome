@@ -20,6 +20,7 @@ import com.kecepret.myhome.model.ResponseBE;
 import com.kecepret.myhome.model.Result;
 import com.kecepret.myhome.model.TokenResponse;
 import com.kecepret.myhome.model.User;
+import com.kecepret.myhome.model.UserSession;
 import com.kecepret.myhome.network.APIClient;
 import com.kecepret.myhome.network.APIInterface;
 import com.kecepret.myhome.network.ServiceGenerator;
@@ -58,6 +59,9 @@ public class HomeFragment extends Fragment {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
+    private String username;
+    UserSession session;
+
     APIInterface apiInterface;
 
     public HomeFragment() {
@@ -90,6 +94,10 @@ public class HomeFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         context = getActivity().getApplicationContext();
+
+        // User Session Manager
+        session = new UserSession(rootView.getContext());
+        username = session.getUsername();
     }
 
     @Override
@@ -109,7 +117,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
                 String message = "";
-                TurnOnOffLamp("rwk", 1);
+                TurnOnOffLamp(username, 1);
                 if (isChecked) {
                     message = "Terrace lamp turned on";
                 } else {
@@ -127,7 +135,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
-                TurnOnOffLamp("rwk", 2);
+                TurnOnOffLamp(username, 2);
                 if (isChecked) {
                     message = "Living room lamp turned on";
                 } else {
@@ -144,7 +152,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 String message;
-                TurnOnOffLamp("rwk", 3);
+                TurnOnOffLamp(username, 3);
                 if (isChecked) {
                     message = "Bedroom lamp turned on";
                 } else {
