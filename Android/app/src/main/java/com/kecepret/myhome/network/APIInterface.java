@@ -3,13 +3,19 @@ package com.kecepret.myhome.network;
 import com.kecepret.myhome.model.Door;
 import com.kecepret.myhome.model.GoogleId;
 import com.kecepret.myhome.model.Lamp;
+import com.kecepret.myhome.model.NotificationResponse;
 import com.kecepret.myhome.model.Register;
 import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.Token;
+import com.kecepret.myhome.model.TokenResponse;
 import com.kecepret.myhome.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface APIInterface {
 
@@ -27,4 +33,10 @@ public interface APIInterface {
 
     @POST("/users/")
     Call<ResponseBE> register(@Body Register register);
+
+    @POST("/usertokens/")
+    Call<ResponseBE> send_token(@Body Token token);
+
+    @GET("/notifications/")
+    Call<NotificationResponse> get_notification(@Query("username") String username);
 }

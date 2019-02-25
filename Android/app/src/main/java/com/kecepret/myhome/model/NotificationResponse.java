@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class NotificationList {
+public class NotificationResponse {
 
     @SerializedName("count")
     private Integer count;
@@ -13,7 +13,7 @@ public class NotificationList {
     @SerializedName("total")
     private String total;
     @SerializedName("results")
-    private List<Notification> results = null;
+    private List<Notification> results;
 
     public List<Notification> getResults() {
         return results;

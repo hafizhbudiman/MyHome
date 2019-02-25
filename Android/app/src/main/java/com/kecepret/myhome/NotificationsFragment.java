@@ -14,10 +14,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.kecepret.myhome.adapter.NotificationAdapter;
+import com.kecepret.myhome.model.Lamp;
 import com.kecepret.myhome.model.Notification;
+import com.kecepret.myhome.model.NotificationResponse;
+import com.kecepret.myhome.model.ResponseBE;
+import com.kecepret.myhome.model.UserSession;
+import com.kecepret.myhome.network.APIClient;
+import com.kecepret.myhome.network.APIInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class NotificationsFragment extends Fragment {
@@ -30,6 +40,11 @@ public class NotificationsFragment extends Fragment {
     private TextView emptyView;
     private List<Notification> notificationList;
     private Context context;
+
+    private String username;
+    UserSession session;
+
+    APIInterface apiInterface;
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -48,6 +63,9 @@ public class NotificationsFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_notifications, container, false);
 
+        // User Session Manager
+        session = new UserSession(rootView.getContext());
+
         recycler = rootView.findViewById(R.id.notification_recycler);
         emptyView = rootView.findViewById(R.id.notification_empty_view);
 
@@ -61,11 +79,9 @@ public class NotificationsFragment extends Fragment {
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         recycler.setLayoutManager(linearLayoutManager);
-        notificationList = getNotificationList();
-        adapter = new NotificationAdapter(notificationList, context);
-        recycler.setAdapter(adapter);
 
-        emptyView.setVisibility(View.GONE);
+        username = session.getUsername();
+        getNotifications(username);
     }
 
     private List<Notification> getNotificationList() {
@@ -107,5 +123,31 @@ public class NotificationsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void getNotifications(String username){
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Call<NotificationResponse> call = apiInterface.get_notification(username);
+
+        call.enqueue(new Callback<NotificationResponse>() {
+
+            @Override
+            public void onResponse(Call<NotificationResponse> call, Response<NotificationResponse> response) {
+                NotificationResponse resource = response.body();
+
+                if (!resource.getResults().isEmpty()) {
+                    notificationList = resource.getResults();
+                    adapter = new NotificationAdapter(notificationList, context);
+                    recycler.setAdapter(adapter);
+
+                    emptyView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NotificationResponse> call, Throwable t) {
+                call.cancel();
+            }
+        });
     }
 }
